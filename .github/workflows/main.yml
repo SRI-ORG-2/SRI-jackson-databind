@@ -37,7 +37,7 @@ jobs:
           TRIVY_QUIET: true
           BILLY_SERVER: https://billy.codesec.aquasec.com
         run: |
-          ./billy sbom generate \
+          ./billy generate \
             --input target/*.jar \
             --output sbom.json
 
@@ -46,7 +46,7 @@ jobs:
           AQUA_KEY: ${{ secrets.AQUA_KEY }}
           AQUA_SECRET: ${{ secrets.AQUA_SECRET }}
         run: |
-          ./billy sbom upload \
+          ./billy upload \
             --sbom sbom.json \
             --aqua-key "${AQUA_KEY}" \
             --aqua-secret "${AQUA_SECRET}"
