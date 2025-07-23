@@ -41,8 +41,8 @@ jobs:
         run: |
           ./billy generate \
             --access-token "${GITHUB_TOKEN}" \
-            --aqua-key "${AQUA_KEY}" \
-            --aqua-secret "${AQUA_SECRET}" \
+            --aqua-key mRUzbdz4yE52ll6uAkXIGP \
+            --aqua-secret MAhIQLTSAdig8zPhnGkd3SsRBeU5N5lcCHB \
             --cspm-url https://api.cloudsploit.com \
             --artifact-path target/*.jar \
             --quiet \
