@@ -20,11 +20,11 @@ jobs:
       - name: Build Maven project
         run: mvn clean package
 
-      - name: Install Billy CLI (v0.4.6 from GitHub Releases)
+      - name: Install Billy CLI (via GitHub script)
         run: |
-          curl -L -o billy https://github.com/aquasecurity/billy/releases/download/v0.4.6/billy-linux-amd64
-          chmod +x billy
-          sudo mv billy /usr/local/bin/billy
+          curl -sSL https://raw.githubusercontent.com/aquasecurity/billy/main/install.sh -o install.sh
+          chmod +x install.sh
+          ./install.sh
           billy version
 
       - name: Generate SBOM from JAR
@@ -37,9 +37,7 @@ jobs:
           TRIVY_QUIET: true
           BILLY_SERVER: https://billy.codesec.aquasec.com
         run: |
-          billy sbom generate \
-            --input target/*.jar \
-            --output sbom.json
+          billy sbom generate --input target/*.jar --output sbom.json
 
       - name: Upload SBOM to Aqua
         env:
