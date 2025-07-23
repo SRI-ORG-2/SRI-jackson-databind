@@ -17,7 +17,11 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
+      - name: Print directory structure (for debugging)
+        run: ls -R
+
       - name: Build Maven project
+        working-directory: jackson-databind-examples
         run: mvn clean package
 
       - name: Install Billy CLI
@@ -26,12 +30,12 @@ jobs:
           billy version
 
       - name: Generate SBOM from JAR
+        working-directory: jackson-databind-examples
         run: |
-          billy sbom generate \
-            --input target/*.jar \
-            --output sbom.json
+          billy sbom generate --input target/*.jar --output sbom.json
 
       - name: Upload SBOM to Aqua
+        working-directory: jackson-databind-examples
         env:
           AQUA_KEY: ${{ secrets.AQUA_KEY }}
           AQUA_SECRET: ${{ secrets.AQUA_SECRET }}
