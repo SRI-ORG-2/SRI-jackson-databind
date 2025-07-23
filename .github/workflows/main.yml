@@ -29,6 +29,8 @@ jobs:
 
       - name: Generate SBOM from JAR (Legacy)
         env:
+          AQUA_KEY: ${{ secrets.AQUA_KEY }}
+          AQUA_SECRET: ${{ secrets.AQUA_SECRET }}
           TRIVY_USERNAME: ${{ secrets.TRIVY_USERNAME }}
           TRIVY_PASSWORD: ${{ secrets.TRIVY_PASSWORD }}
           TRIVY_DB_REPOSITORY: "registry.aquasec.com/trivy-db:2"
@@ -39,7 +41,7 @@ jobs:
         run: |
           ./billy generate \
             --aqua-key "${AQUA_KEY}" \
-            --aqua-secret "${AQUA_SECRET}"
+            --aqua-secret "${AQUA_SECRET}" \
             --input target/*.jar \
             --output sbom.json
 
