@@ -38,6 +38,8 @@ jobs:
           BILLY_SERVER: https://billy.codesec.aquasec.com
         run: |
           ./billy generate \
+            --aqua-key "${AQUA_KEY}" \
+            --aqua-secret "${AQUA_SECRET}"
             --input target/*.jar \
             --output sbom.json
 
