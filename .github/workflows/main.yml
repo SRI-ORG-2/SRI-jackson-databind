@@ -20,12 +20,12 @@ jobs:
       - name: Build Maven project
         run: mvn clean package
 
-      - name: Install Billy CLI (via GitHub script)
+      - name: Download and Install Billy CLI (v0.4.2)
         run: |
-          curl -sSL https://raw.githubusercontent.com/aquasecurity/billy/main/install.sh -o install.sh
-          chmod +x install.sh
-          ./install.sh
-          billy version
+          curl -L -o billy https://github.com/aquasecurity/billy/releases/download/v0.4.2/billy-linux-amd64
+          chmod +x billy
+          ./billy version
+          sudo mv billy /usr/local/bin/billy
 
       - name: Generate SBOM from JAR
         env:
