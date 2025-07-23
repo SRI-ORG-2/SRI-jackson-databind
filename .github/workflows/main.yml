@@ -36,8 +36,10 @@ jobs:
           AQUA_KEY: ${{ secrets.AQUA_KEY }}
           AQUA_SECRET: ${{ secrets.AQUA_SECRET }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          AQUA_URL: https://api.supply-chain.cloud.aquasec.com
-          CSPM_URL: https://api.cloudsploit.com
+          AQUA_URL: https://api.dev.supply-chain.cloud.aquasec.com
+          CSPM_URL: https://stage.api.cloudsploit.com
+    #      AQUA_URL: https://api.supply-chain.cloud.aquasec.com
+     #     CSPM_URL: https://api.cloudsploit.com
           TRIVY_RUN_AS_PLUGIN: 'aqua'
 
       - name: Install Billy CLI
@@ -63,11 +65,11 @@ jobs:
             --access-token "${GITHUB_TOKEN}" \
             --aqua-key "${AQUA_KEY}" \
             --aqua-secret "${AQUA_SECRET}" \
-            --cspm-url https://api.cloudsploit.com \
+            --cspm-url https://stage.api.cloudsploit.com \ 
             --artifact-path target/*.jar \
             --log-file billy.log \
             --sbom-path sbom.json
-
+ #old https://api.cloudsploit.com
       - name: Print Billy Log Output
         if: always()
         run: |
