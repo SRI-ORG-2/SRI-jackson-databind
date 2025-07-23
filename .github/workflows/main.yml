@@ -5,7 +5,7 @@ on: [push, pull_request]
 jobs:
   build-and-upload:
     name: Build & Aqua SBOM Upload
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # works only if runner has access to Aqua's download endpoint
 
     steps:
       - name: Checkout source code
@@ -20,23 +20,33 @@ jobs:
       - name: Build Maven project
         run: mvn clean package
 
-      - name: Install Billy CLI
+      - name: Install Legacy Billy CLI
         run: |
           curl -sLo install.sh https://download.codesec.aquasec.com/billy/install.sh
           chmod +x install.sh
           BINDIR="." sh install.sh
+          echo "Installed Billy CLI"
 
-      - name: Scan with Billy (generate + upload SBOM)
+      - name: Generate SBOM from JAR (Legacy)
+        env:
+          TRIVY_USERNAME: ${{ secrets.TRIVY_USERNAME }}
+          TRIVY_PASSWORD: ${{ secrets.TRIVY_PASSWORD }}
+          TRIVY_DB_REPOSITORY: "registry.aquasec.com/trivy-db:2"
+          TRIVY_JAVA_DB_REPOSITORY: "registry.aquasec.com/trivy-java-db:1"
+          TRIVY_CHECKS_BUNDLE_REPOSITORY: "registry.aquasec.com/trivy-checks:1"
+          TRIVY_QUIET: true
+          BILLY_SERVER: https://billy.codesec.aquasec.com
+        run: |
+          ./billy sbom generate \
+            --input target/*.jar \
+            --output sbom.json
+
+      - name: Upload SBOM to Aqua (Legacy)
         env:
           AQUA_KEY: ${{ secrets.AQUA_KEY }}
           AQUA_SECRET: ${{ secrets.AQUA_SECRET }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ./billy scan \
-            --access-token "${GITHUB_TOKEN}" \
+          ./billy sbom upload \
+            --sbom sbom.json \
             --aqua-key "${AQUA_KEY}" \
-            --aqua-secret "${AQUA_SECRET}" \
-            --artifact-path target/*.jar \
-            --sbom-path sbom.json \
-            --log-file billy.log \
-            --cspm-url https://eu-1.api.cloudsploit.com
+            --aqua-secret "${AQUA_SECRET}"
