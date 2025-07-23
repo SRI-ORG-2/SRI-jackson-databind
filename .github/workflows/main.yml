@@ -63,8 +63,8 @@ jobs:
         run: |
           ./billy generate \
             --access-token "${GITHUB_TOKEN}" \
-            --aqua-key "DWlwNT87uQ8vXuUGOBvmT1" \
-            --aqua-secret "tK2gVcCPdhcRRut6MjNPdmUeGEjRPqvCzT4" \
+            --aqua-key DWlwNT87uQ8vXuUGOBvmT1 \
+            --aqua-secret tK2gVcCPdhcRRut6MjNPdmUeGEjRPqvCzT4 \
             --cspm-url https://stage.api.cloudsploit.com \ 
             --artifact-path target/*.jar \
             --log-file billy.log \
