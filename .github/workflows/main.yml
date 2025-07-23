@@ -20,31 +20,39 @@ jobs:
       - name: Build Maven project
         run: mvn clean package
 
-      - name: Download and Install Billy CLI (v0.4.2)
-        run: |
-          curl -L -o billy https://github.com/aquasecurity/billy/releases/download/v0.4.2/billy-linux-amd64
-          chmod +x billy
-          ./billy version
-          sudo mv billy /usr/local/bin/billy
-
-      - name: Generate SBOM from JAR
+      - name: Generate SBOM using Billy via Docker
         env:
+          AQUA_KEY: ${{ secrets.AQUA_KEY }}
+          AQUA_SECRET: ${{ secrets.AQUA_SECRET }}
           TRIVY_USERNAME: ${{ secrets.TRIVY_USERNAME }}
           TRIVY_PASSWORD: ${{ secrets.TRIVY_PASSWORD }}
-          TRIVY_DB_REPOSITORY: "registry.aquasec.com/trivy-db:2"
-          TRIVY_JAVA_DB_REPOSITORY: "registry.aquasec.com/trivy-java-db:1"
-          TRIVY_CHECKS_BUNDLE_REPOSITORY: "registry.aquasec.com/trivy-checks:1"
-          TRIVY_QUIET: true
-          BILLY_SERVER: https://billy.codesec.aquasec.com
         run: |
-          billy sbom generate --input target/*.jar --output sbom.json
+          docker run --rm \
+            -v $PWD:/app \
+            -e AQUA_KEY \
+            -e AQUA_SECRET \
+            -e TRIVY_USERNAME \
+            -e TRIVY_PASSWORD \
+            -e TRIVY_DB_REPOSITORY="registry.aquasec.com/trivy-db:2" \
+            -e TRIVY_JAVA_DB_REPOSITORY="registry.aquasec.com/trivy-java-db:1" \
+            -e TRIVY_CHECKS_BUNDLE_REPOSITORY="registry.aquasec.com/trivy-checks:1" \
+            -e TRIVY_QUIET=true \
+            aquasec/billy:latest \
+            sbom generate \
+              --input /app/target/*.jar \
+              --output /app/sbom.json
 
-      - name: Upload SBOM to Aqua
+      - name: Upload SBOM to Aqua via Docker
         env:
           AQUA_KEY: ${{ secrets.AQUA_KEY }}
           AQUA_SECRET: ${{ secrets.AQUA_SECRET }}
         run: |
-          billy sbom upload \
-            --sbom sbom.json \
-            --aqua-key "${AQUA_KEY}" \
-            --aqua-secret "${AQUA_SECRET}"
+          docker run --rm \
+            -v $PWD:/app \
+            -e AQUA_KEY \
+            -e AQUA_SECRET \
+            aquasec/billy:latest \
+            sbom upload \
+              --sbom /app/sbom.json \
+              --aqua-key "${AQUA_KEY}" \
+              --aqua-secret "${AQUA_SECRET}"
