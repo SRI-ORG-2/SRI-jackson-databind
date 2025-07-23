@@ -17,20 +17,14 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
-      - name: Print working directory (debug)
-        run: |
-          pwd
-          ls -la
-          ls -R
-
       - name: Build Maven project
         run: mvn clean package
 
-      - name: Install Billy CLI (via download.aquasec.com)
+      - name: Install Billy CLI from GitHub Release
         run: |
-          curl -sSL https://download.aquasec.com/billy/install -o billy-install.sh
-          chmod +x billy-install.sh
-          ./billy-install.sh
+          curl -L -o billy https://github.com/aquasecurity/billy/releases/latest/download/billy-linux-amd64
+          chmod +x billy
+          sudo mv billy /usr/local/bin/
           billy version
 
       - name: Generate SBOM from JAR
