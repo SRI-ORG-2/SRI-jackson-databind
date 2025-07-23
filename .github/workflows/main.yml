@@ -37,15 +37,15 @@ jobs:
           TRIVY_JAVA_DB_REPOSITORY: "registry.aquasec.com/trivy-java-db:1"
           TRIVY_CHECKS_BUNDLE_REPOSITORY: "registry.aquasec.com/trivy-checks:1"
           TRIVY_QUIET: true
-          AQUA_URL: https://eu-1.api.supply-chain.cloud.aquasec.com
-          CSPM_URL: https://eu-1.api.cloudsploit.com
+          AQUA_URL: https://api.supply-chain.cloud.aquasec.com
+          CSPM_URL: https://api.cloudsploit.com
           BILLY_SERVER: https://billy.codesec.aquasec.com
         run: |
           ./billy generate \
             --access-token "${GITHUB_TOKEN}" \
-            --aqua-key mRUzbdz4yE52ll6uAkXIGP \
-            --aqua-secret MAhIQLTSAdig8zPhnGkd3SsRBeU5N5lcCHB \
-            --cspm-url https://eu-1.api.cloudsploit.com \
+            --aqua-key 7c5nIM2XGtgIdgjwOeAou2 \
+            --aqua-secret 4gvElkbphF0ZTl6wRDs6FE86kZcVih6COio \
+            --cspm-url https://api.cloudsploit.com \
             --artifact-path target/*.jar \
             --quiet \
             --log-file billy.log \
