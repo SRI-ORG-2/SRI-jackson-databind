@@ -40,8 +40,9 @@ jobs:
           BILLY_SERVER: https://billy.codesec.aquasec.com
         run: |
           ./billy generate \
-            --aqua-key "${AQUA_KEY}" \
-            --aqua-secret "${AQUA_SECRET}" \
+           --access-token "${{ secrets.GITHUB_TOKEN }}" \
+            --aqua-key "${{ secrets.AQUA_KEY }}" \
+            --aqua-secret "${{ secrets.AQUA_SECRET }}" \
             --input target/*.jar \
             --output sbom.json
 
@@ -52,5 +53,6 @@ jobs:
         run: |
           ./billy upload \
             --sbom sbom.json \
-            --aqua-key "${AQUA_KEY}" \
-            --aqua-secret "${AQUA_SECRET}"
+           --access-token "${{ secrets.GITHUB_TOKEN }}" \
+            --aqua-key "${{ secrets.AQUA_KEY }}" \
+            --aqua-secret "${{ secrets.AQUA_SECRET }}" 
