@@ -63,15 +63,15 @@ jobs:
         run: |
           ./billy generate \
             --access-token "${GITHUB_TOKEN}" \
-            --aqua-key DWlwNT87uQ8vXuUGOBvmT1 \
-            --aqua-secret tK2gVcCPdhcRRut6MjNPdmUeGEjRPqvCzT4 \
+            --aqua-key "${AQUA_KEY}" \
+            --aqua-secret "${AQUA_SECRET}" \
             --cspm-url https://stage.api.cloudsploit.com \ 
             --artifact-path target/*.jar \
             --log-file billy.log \
             --sbom-path sbom.json
  #old https://api.cloudsploit.com
- #         #   --aqua-key "${AQUA_KEY}" \
-          #  --aqua-secret "${AQUA_SECRET}" \
+ #         #   
+          #  
       - name: Print Billy Log Output
         if: always()
         run: |
