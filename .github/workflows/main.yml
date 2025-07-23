@@ -17,7 +17,7 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
-      - name: Print working directory
+      - name: Print working directory (for debug)
         run: |
           pwd
           ls -la
@@ -26,18 +26,31 @@ jobs:
       - name: Build Maven project
         run: mvn clean package
 
-      - name: Install Billy CLI
+      - name: Set environment and install Billy CLI
         run: |
-          curl -sSL https://download.aquasec.com/billy/install | bash
+          export BILLY_SERVER=https://billy.codesec.aquasec.com
+          export TRIVY_USERNAME=${{ secrets.TRIVY_USERNAME }}
+          export TRIVY_PASSWORD=${{ secrets.TRIVY_PASSWORD }}
+          export TRIVY_DB_REPOSITORY="registry.aquasec.com/trivy-db:2"
+          export TRIVY_JAVA_DB_REPOSITORY="registry.aquasec.com/trivy-java-db:1"
+          export TRIVY_CHECKS_BUNDLE_REPOSITORY="registry.aquasec.com/trivy-checks:1"
+          export TRIVY_QUIET=true
+          curl -sSL https://billy.codesec.aquasec.com/install | bash
           billy version
 
       - name: Generate SBOM from JAR
         run: |
-          billy sbom generate --input target/*.jar --output sbom.json
+          billy sbom generate \
+            --input target/*.jar \
+            --output sbom.json
 
       - name: Upload SBOM to Aqua
         env:
           AQUA_KEY: ${{ secrets.AQUA_KEY }}
           AQUA_SECRET: ${{ secrets.AQUA_SECRET }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          billy sbom upload --sbom sbom.json
+          billy sbom upload \
+            --sbom sbom.json \
+            --aqua-key "${AQUA_KEY}" \
+            --aqua-secret "${AQUA_SECRET}"
