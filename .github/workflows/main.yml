@@ -1,11 +1,11 @@
-name: Build & Upload SBOM to Aqua
+name: Build & Upload SBOM to Aqua (No Docker)
 
 on: [push, pull_request]
 
 jobs:
   build-and-upload:
     name: Build & Aqua SBOM Upload
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # or 'self-hosted' if you're using EC2/runner with access
 
     steps:
       - name: Checkout source code
@@ -20,39 +20,33 @@ jobs:
       - name: Build Maven project
         run: mvn clean package
 
-      - name: Generate SBOM using Billy via Docker
+      - name: Install Billy CLI from Aqua
+        run: |
+          curl -sLo install.sh https://download.codesec.aquasec.com/billy/install.sh
+          chmod +x install.sh
+          BINDIR="." sh install.sh
+          ./billy version
+
+      - name: Generate SBOM from JAR
         env:
-          AQUA_KEY: ${{ secrets.AQUA_KEY }}
-          AQUA_SECRET: ${{ secrets.AQUA_SECRET }}
           TRIVY_USERNAME: ${{ secrets.TRIVY_USERNAME }}
           TRIVY_PASSWORD: ${{ secrets.TRIVY_PASSWORD }}
+          TRIVY_DB_REPOSITORY: "registry.aquasec.com/trivy-db:2"
+          TRIVY_JAVA_DB_REPOSITORY: "registry.aquasec.com/trivy-java-db:1"
+          TRIVY_CHECKS_BUNDLE_REPOSITORY: "registry.aquasec.com/trivy-checks:1"
+          TRIVY_QUIET: true
+          BILLY_SERVER: https://billy.codesec.aquasec.com
         run: |
-          docker run --rm \
-            -v $PWD:/app \
-            -e AQUA_KEY \
-            -e AQUA_SECRET \
-            -e TRIVY_USERNAME \
-            -e TRIVY_PASSWORD \
-            -e TRIVY_DB_REPOSITORY="registry.aquasec.com/trivy-db:2" \
-            -e TRIVY_JAVA_DB_REPOSITORY="registry.aquasec.com/trivy-java-db:1" \
-            -e TRIVY_CHECKS_BUNDLE_REPOSITORY="registry.aquasec.com/trivy-checks:1" \
-            -e TRIVY_QUIET=true \
-            aquasec/billy:latest \
-            sbom generate \
-              --input /app/target/*.jar \
-              --output /app/sbom.json
+          ./billy sbom generate \
+            --input target/*.jar \
+            --output sbom.json
 
-      - name: Upload SBOM to Aqua via Docker
+      - name: Upload SBOM to Aqua
         env:
           AQUA_KEY: ${{ secrets.AQUA_KEY }}
           AQUA_SECRET: ${{ secrets.AQUA_SECRET }}
         run: |
-          docker run --rm \
-            -v $PWD:/app \
-            -e AQUA_KEY \
-            -e AQUA_SECRET \
-            aquasec/billy:latest \
-            sbom upload \
-              --sbom /app/sbom.json \
-              --aqua-key "${AQUA_KEY}" \
-              --aqua-secret "${AQUA_SECRET}"
+          ./billy sbom upload \
+            --sbom sbom.json \
+            --aqua-key "${AQUA_KEY}" \
+            --aqua-secret "${AQUA_SECRET}"
